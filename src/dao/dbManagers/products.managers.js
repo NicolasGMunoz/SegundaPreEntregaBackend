@@ -5,17 +5,17 @@ export default class Products {
     }
 
     getProducts = async () =>{
-        const products = await productsModel.find();
-        return products.map(p => p.toObject());
+        const products = await productsModel.find().lean();
+        return products;
     }
 
     getProductById = async (id) =>{
-        const productFind = await productsModel.find({_id : id});
+        const productFind = await productsModel.findById(id);
         return productFind;
     }
 
     updateProduct = async (id, product) =>{
-        const productUpdated = await productsModel.updateOne({_id : id}, product);
+        const productUpdated = await productsModel.updateOne({_id : id}, product, {new: true});
         return productUpdated;
     }
     

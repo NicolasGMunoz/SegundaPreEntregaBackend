@@ -1,0 +1,36 @@
+<h1>{{product.title}}</h1>
+<img src="{{product.thumbnail}}" alt="{{product.title}}">
+<p>{{product.description}}</p>
+<p>Precio: ${{product.price}}</p>
+<p>Categoría: {{product.category}}</p>
+<p>Stock: {{product.stock}}</p>
+<button id="add-to-cart-btn" data-product-id="{{product._id}}">Agregar al Carrito</button>
+
+<script>
+    let cartId = null;
+
+    fetch('/api/carts', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            cartId = data.cartId;
+        });
+
+    document.getElementById('add-to-cart-btn').addEventListener('click', function () {
+        const productId = this.getAttribute('data-product-id');
+        if (cartId) {
+            // Si el carrito existe, agrega el producto
+            fetch(`/api/carts/${cartId}/products/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: 1 }) // Añadir 1 producto
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Producto agregado al carrito');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    });
+</script>

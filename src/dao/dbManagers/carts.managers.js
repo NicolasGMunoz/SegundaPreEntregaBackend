@@ -14,7 +14,7 @@ export default class Carts {
     }
 
     getCartById = async (id) => {
-        const idCart = await cartsModel.find({ _id: id }).lean();
+        const idCart = await cartsModel.findById(id);
         return idCart;
     }
 
@@ -41,7 +41,7 @@ export default class Carts {
     };
 
     deleteCart = async (id) => {
-        const cart = await cartsModel.find(id);
+        const cart = await cartsModel.findById(id);
         if  (!cart){
             throw new Error("Cart not found.")
         }

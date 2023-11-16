@@ -1,0 +1,8 @@
+<h1>CARRITO</h1>
+{{#each products}}
+<div>
+    <h2>{{this.product.title}}</h2>
+    <p>Cantidad: {{this.quantity}}</p>
+    <p>Subtotal: ${{this.subtotal}}</p>
+</div>
+{{/each}}

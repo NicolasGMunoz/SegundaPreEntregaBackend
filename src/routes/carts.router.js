@@ -9,8 +9,7 @@ const cartManager = new Carts();
 //Endpoint que crea un carrito
 router.post('/', async (req, res) => {
     try {
-        const cart = { products: [] };
-        const newCart = await cartManager.addCart(cart);
+        const newCart = await cartManager.addCart();
         res.send({ status: 'succes', message: 'Carrito creado', payload: newCart })
     } catch (error) {
         res.status(500).send({ status: 'error', message: error.message });
@@ -22,8 +21,7 @@ router.post('/', async (req, res) => {
 router.get('/:cid', async (req, res) => {
     try {
         const { cid } = req.params
-        const cart = await cartManager.getCartById(cid);
-
+        const cart = await cartManager.getCartById(cid).populate('products.product').exec()
         if (cart) {
             res.send({ status: 'succes', payload: cart.products })
         } else {
@@ -40,24 +38,31 @@ router.get('/:cid', async (req, res) => {
 //Endpoint que agrega un producto al carrito
 router.post('/:cid/product/:pid', async (req, res) => {
     try {
-        const cartID = Number(req.params.cid);
-        const productID = Number(req.params.pid);
+        const idCart = req.params.cid;
+        const idProd = req.params.pid;
 
-        const productCart = await cartManager.getCartById(cartID);
 
-        if (productCart.products.some(product => product.id === productID)) {
-            const cantidad = productCart.products.find(product => product.id === productID).quantify;
-            const result = await cartManager.updateCart(cartID, { id: productID, quantify: 1 });
-            res.status(200).send({ status: 'success', payload: result });
+        const cart = await cartManager.getCartById(idCart);
+        if (!cart) {
+            return res.status(404).send({ error: "Cart not found" });
+        }
+        const productIndex = cart.products.findIndex(p => p.product.toString() === idProd);
+
+
+        if (productIndex === -1) {
+            cart.products.push({ product: idProd, quantity: 1 });
         } else {
-            const result = await cartManager.updateCart(idCart, { id: idProduct, quantity: 1 });
-            res.status(200).send({ status: 'success', payload: result });
+
+            cart.products[productIndex].quantity++;
         }
 
-    } catch (error) {
+        const updatedCart = await cartManager.updateCart(idCart, cart.products);
+
+        res.status(200).send({ status: 'success', payload: updatedCart });
+    }
+    catch (error) {
         res.status(400).send({ error: error.message });
     }
-
 });
 
 router.delete('/:cid/products/:pid', async (req, res) => {
@@ -70,20 +75,20 @@ router.delete('/:cid/products/:pid', async (req, res) => {
         res.status(200).send({ status: 'success', payload: result });
     }
     catch (error) {
-        res.status(400).send({ status: 'error', message: error.message });
+        res.status(400).send({ error: error.message });
     }
 });
 
 router.put('/:cid ', async (req, res) => {
     try {
         const cartId = req.params["cid "];
-        const productsToUpdate = req.body.products; 
-       
+        const productsToUpdate = req.body.products;
+
         const updatedCart = await cartManager.updateCartWithProducts(cartId, productsToUpdate);
 
         res.status(200).send({ status: 'success', payload: updatedCart });
     } catch (error) {
-        res.status(400).send({ status: 'error', message: error.message });
+        res.status(400).send({ status: 'error', payload: error.message });
     }
 })
 
@@ -103,7 +108,7 @@ router.put('/:cid/products/:pid', async (req, res) => {
 
         res.status(200).send({ status: 'success', payload: result });
     } catch (error) {
-        res.status(400).send({ status: 'error', message: error.message });
+        res.status(400).send({ error: error.message });
     }
 });
 
@@ -114,7 +119,7 @@ router.delete('/:cid', async (req, res) => {
         res.status(200).send({ status: 'success', payload: result });
     }
     catch (error) {
-        res.status(400).send({ status: 'error', message: error.message });
+        res.status(400).send({ error: error.message });
     }
 });
 
