@@ -5,7 +5,6 @@ import ProductManager from '../dao/dbManagers/products.managers.js'
 const router = Router();
 const productManager = new ProductManager();
 
-//Endpoint que muestra todos los productos y puede recibir un query param para mostrar menos productos si el cliente lo desea
 router.get('/', async (req, res) => {
     let { limit = 10, page = 1, sort, query } = req.query;
     limit = parseInt(limit);
@@ -40,7 +39,7 @@ router.get('/', async (req, res) => {
     }
 })
 
-//Endpoint que muestra el producto segun el id
+
 router.get('/:pid', async (req, res) => {
     try {
         const product = await productManager.getProductById(Number(req.params.pid));
@@ -50,7 +49,6 @@ router.get('/:pid', async (req, res) => {
     }
 })
 
-//Endpoint que crea un producto 
 router.post('/', async (req, res) => {
     try {
         const product = req.body;
@@ -61,7 +59,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-//Endpoint que actualiza un producto
 router.put('/:pid', async (req, res) => {
     try {
         const id = Number(req.params.pid);
@@ -80,7 +77,6 @@ router.put('/:pid', async (req, res) => {
 });
 
 
-//Endpoint que elimina un producto
 router.delete('/:pid', async (req, res) => {
     try {
         const id = Number(req.params.pid);
